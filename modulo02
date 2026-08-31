@@ -1,0 +1,62 @@
+import numpy as np
+
+def rota(theta): # PASA LOS TESTS
+    matriz = np.array([[np.cos(theta), -np.sin(theta)],
+                       [np.sin(theta),  np.cos(theta)]])
+    
+    return matriz
+
+    
+def escala(s): # PASA LOS TESTS
+    matriz = np.zeros((len(s),len(s)))
+    for i,valor in enumerate(s):
+        matriz[i,i] = valor
+    return matriz
+
+
+def rota_y_escala (theta,s): # "NO SE PUEDE CORRER LOS TESTS", pero los tests del pdf los corre.
+    
+    # Sabemos que devuelve una matriz de 2x2, entonces en la multiplicacion de la matriz de escala con la matriz de rotación (2x2)
+    # tiene que ser de 2x2. Entonces, la única posibilidad de que devuelva una matriz de esa dimensión es que s tenga longitud 2. 
+    # Entonces s = [s0, s1] ==> escala(s) = [[s0, 0],
+    #                                        [0, s1]]
+    
+    res = np.array([[s[0] * np.cos(theta), - s[0] * np.sin(theta)],
+                    [s[1] * np.sin(theta),   s[1] * np.cos(theta)]])
+    
+    return res
+    
+#contexto: el vector v que me daran vive en z=1. Sera un vector de R^2 extendido a R^3. Entonces su tercera
+#coordenada será 1. Esto para poder sumarle b en una multiplicacion de matrices. En una matriz de R^(2x2) es imposible
+#desplazar el vector multiplicandolo por una matriz, solo es posible rotarlo o escalarlo ya que no puedo sumarle nada.
+#Esta tercera componene igual a 1 se agrega para que al multiplicar si pueda sumar b usando una matriz de 3x3, ya que
+#cada coordenada de b sera multiplicada por 1 y sumada al vector v, cuyas coordenadas x,y se le sumaran b y la
+#coordenada z seguira siendo 1.
+
+def afin (theta,s,b): # PASA LOS TESTS
+    #creo matriz 3x3
+    res = np.identity(3)
+    #la roto y escalo con la anterior
+    MatrizRotarYEscalar = rota_y_escala(theta,s)
+    #copio esta matriz en la parte superior izquierda de res
+    res[0:2,0:2] = MatrizRotarYEscalar
+    #agrego que traslade en b
+    res[0:2,2] = b
+    return res
+
+
+
+def trans_afin (v,theta,s,b): # PASA LOS TESTS
+    A = afin(theta,s,b) # Matriz de 3x3
+    vectorR3 = [v[0], v[1], 1]
+    
+    # Ahora tengo que hacer la multiplicación de A con vectorR3 a mano, pero solamente hago las operaciones
+    # para los primeros dos elementos, pues la función tiene que devolver w de R2.
+    # Asi que w2 esw innecesario calcularlo.
+    
+    w0 = A[0][0]*vectorR3[0] + A[0][1]*vectorR3[1] + A[0][2]*vectorR3[2]
+    w1 = A[1][0]*vectorR3[0] + A[1][1]*vectorR3[1] + A[1][2]*vectorR3[2]
+    
+    w = np.array([w0, w1])
+    
+    return w
